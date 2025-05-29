@@ -1,26 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service'; // Criar o db
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
-  create(createUsuarioDto: CreateUsuarioDto) {
-    return 'This action adds a new usuario';
-  }
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all usuario`;
-  }
+  async create(createUsuarioDto: CreateUsuarioDto, userRole: string) {
+    if (userRole !== 'Administrador') {
+      throw new ForbiddenException(
+        'Apenas administradores podem criar usuários',
+      );
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
-  }
+    const senhaHash = await bcrypt.hash(createUsuarioDto.senha, 10);
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} usuario`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
+    return this.prisma.usuario.create({
+      // Criar o db
+      data: {
+        nome_usuario: createUsuarioDto.nome_usuario,
+        senha_hash: senhaHash,
+        nome_completo: createUsuarioDto.nome_completo,
+        cpf: createUsuarioDto.cpf,
+        email: createUsuarioDto.email,
+        funcao: createUsuarioDto.funcao,
+        situacao: createUsuarioDto.situacao,
+      },
+    });
   }
 }

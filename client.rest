@@ -1,0 +1,5 @@
+# Client para testar a API
+
+@BaseUrl = http://localhost:3000
+
+GET {{BaseUrl}}/
