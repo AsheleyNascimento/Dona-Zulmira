@@ -16,6 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
   async login(loginDto: LoginDto) {
+
     const usuario = await this.prisma.usuario.findFirst({
       where: {
         email: loginDto.email,
@@ -42,8 +43,9 @@ export class AuthService {
     }
 
     const passwordIsValid = await this.hashingService.comparePassword(
-      loginDto.senha_hash,
+      loginDto.senha,
       usuario.senha_hash,
+
     );
 
     if (!passwordIsValid) {
@@ -125,3 +127,5 @@ export class AuthService {
     }
   }
 }
+
+

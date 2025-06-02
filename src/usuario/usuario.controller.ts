@@ -14,9 +14,10 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ParseIntIdPipe } from '../app/common/pipes/parse-int-id.pipe';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 
 @Controller('usuario')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 

@@ -7,105 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Usuario {
-  id_usuario   Int       @id @default(autoincrement())
-  nome_completo String
-  senha_hash    String
-  email         String    @unique
-  funcao        String
-  situacao      Boolean
-
-  moradores     Morador[]
-  evolucoes     EvolucaoIndividual[]
-  relatorios    RelatorioDiarioGeral[]
-  medicacoes    Medicacao[]
+model medico {
+  id_medico       Int       @id @default(autoincrement())
+  nome_completo   String    @db.VarChar(100)
+  crm             String    @unique(map: "crm") @db.VarChar(15)
+  situacao        Boolean
+  data_criacao    DateTime? @default(now()) @db.DateTime(0)
+  usuario_criacao String?   @db.VarChar(50)
 }
 
-model Medico {
-  id_medico     Int       @id @default(autoincrement())
-  nome_completo String
-  crm           String    @unique
-  situacao      Boolean
-
-  prescricoes   Prescricao[]
-}
-
-model Morador {
-  id_morador     Int       @id @default(autoincrement())
-  nome_completo  String
-  id_usuario     Int
-  data_cadastro  DateTime
-  cpf            String    @unique
-  rg             String
-  situacao       String
-
-  usuario        Usuario   @relation(fields: [id_usuario], references: [id_usuario])
-  evolucoes      EvolucaoIndividual[]
-  prescricoes    Prescricao[]
-}
-
-model EvolucaoIndividual {
-  id_evolucao_individual Int      @id @default(autoincrement())
-  id_morador              Int
-  id_usuario              Int
-  data_hora               DateTime @default(now())
-  observacoes             String
-
-  morador                 Morador   @relation(fields: [id_morador], references: [id_morador])
-  usuario                 Usuario   @relation(fields: [id_usuario], references: [id_usuario])
-  relatorios              RelatorioDiarioGeral[]
-}
-
-model RelatorioDiarioGeral {
-  id_relatorio_diario_geral Int      @id @default(autoincrement())
-  id_usuario                 Int
-  id_evolucao_individual     Int
-  data_hora                  DateTime @default(now())
-  observacoes                String
-
-  usuario                    Usuario             @relation(fields: [id_usuario], references: [id_usuario])
-  evolucao                   EvolucaoIndividual  @relation(fields: [id_evolucao_individual], references: [id_evolucao_individual])
-}
-
-model Medicamento {
-  id_medicamento  Int       @id @default(autoincrement())
-  nome_medicamento String
-  situacao         Boolean
-
-  medicamentos_prescricoes MedicamentoPrescricao[]
-}
-
-model Prescricao {
-  id_prescricao Int    @id @default(autoincrement())
-  id_morador    Int
-  id_medico     Int
-  mes           String
-  ano           String
-
-  morador       Morador  @relation(fields: [id_morador], references: [id_morador])
-  medico        Medico   @relation(fields: [id_medico], references: [id_medico])
-
-  medicamentos_prescricoes MedicamentoPrescricao[]
-}
-
-model MedicamentoPrescricao {
-  id_medicamento_prescricao Int    @id @default(autoincrement())
-  id_medicamento             Int
-  id_prescricao              Int
-  posologia                  String
-
-  medicamento                Medicamento @relation(fields: [id_medicamento], references: [id_medicamento])
-  prescricao                 Prescricao  @relation(fields: [id_prescricao], references: [id_prescricao])
-
-  medicacoes                 Medicacao[]
-}
-
-model Medicacao {
-  id_medicacao                Int    @id @default(autoincrement())
-  id_usuario                  Int
-  id_medicamento_prescricao   Int
-  data_hora                   DateTime @default(now())
-
-  usuario                     Usuario                 @relation(fields: [id_usuario], references: [id_usuario])
-  medicamentoPrescricao       MedicamentoPrescricao   @relation(fields: [id_medicamento_prescricao], references: [id_medicamento_prescricao])
+model usuario {
+  id_usuario      Int       @id @default(autoincrement())
+  nome_usuario    String    @db.VarChar(50)
+  nome_completo   String    @db.VarChar(100)
+  cpf             String    @unique(map: "cpf") @db.VarChar(11)
+  senha_hash      String    @db.VarChar(255)
+  email           String    @unique(map: "email") @db.VarChar(150)
+  funcao          String    @db.VarChar(50)
+  situacao        Boolean
+  data_criacao    DateTime? @default(now()) @db.DateTime(0)
+  usuario_criacao String?   @db.VarChar(50)
 }
