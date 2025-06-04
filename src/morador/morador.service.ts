@@ -37,7 +37,7 @@ export class MoradorService {
           data_cadastro: dataCadastro,
           usuario: {
             connect: {
-              id_usuario: id_usuario,
+              id_usuario: Number(id_usuario),
             },
           },
         },
