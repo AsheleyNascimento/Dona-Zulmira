@@ -8,9 +8,8 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 export class UsuarioService {
   constructor(private prisma: PrismaService) {}
 
-   // Defina o papel do usuário aqui, ou obtenha-o de algum lugar
-  async create(createUsuarioDto: CreateUsuarioDto, userRole: string) {
-    
+  // Defina o papel do usuário aqui, ou obtenha-o de algum lugar
+  async create(createUsuarioDto: CreateUsuarioDto) {
     const senhaHash = await bcrypt.hash(createUsuarioDto.senha, 10);
 
     return this.prisma.usuario.create({
@@ -24,7 +23,7 @@ export class UsuarioService {
         //cpf: createUsuarioDto.cpf,
         email: createUsuarioDto.email,
         funcao: createUsuarioDto.funcao,
-        situacao: createUsuarioDto.situacao,
+        situacao: true,
       },
     });
   }
@@ -40,9 +39,18 @@ export class UsuarioService {
   }
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
+    const data: any = { ...updateUsuarioDto };
+
+    // Se for enviada uma nova senha, gerar o hash e substituir no campo certo
+    if (updateUsuarioDto.senha) {
+      const senhaHash = await bcrypt.hash(updateUsuarioDto.senha, 10);
+      data.senha_hash = senhaHash;
+      delete (data as { senha?: string }).senha; // Remover o campo 'senha' para evitar erro
+    }
+
     return this.prisma.usuario.update({
       where: { id_usuario: id },
-      data: updateUsuarioDto,
+      data,
     });
   }
 

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // Certifique-se de que o caminho está correto
 import { CreateMoradorDto } from './dto/create-morador.dto';
 import { UpdateMoradorDto } from './dto/update-morador.dto';
@@ -8,29 +13,38 @@ export class MoradorService {
   constructor(private prisma: PrismaService) {}
 
   async create(createMoradorDto: CreateMoradorDto) {
-    // Convert data_cadastro string to Date object
-    const dataCadastro = new Date(createMoradorDto.data_cadastro);
+    try {
+      // Verifica se o CPF já está cadastrado
+      const existingMorador = await this.prisma.morador.findUnique({
+        where: { cpf: createMoradorDto.cpf },
+      });
 
-    // Você pode adicionar validações de negócio aqui, como verificar se o usuário existe, etc.
-    // Ex: verificar se o CPF já existe antes de criar
-    const existingMorador = await this.prisma.morador.findUnique({
-      where: { cpf: createMoradorDto.cpf },
-    });
+      if (existingMorador) {
+        throw new ConflictException('CPF já cadastrado para outro morador.');
+      }
 
-    if (existingMorador) {
-      throw new Error('CPF já cadastrado para outro morador.'); // Ou use ConflictException
+      // Converte data_cadastro se necessário
+      const dataCadastro = createMoradorDto.data_cadastro
+        ? new Date(createMoradorDto.data_cadastro)
+        : new Date(); // ou lance erro se for obrigatório
+
+      // Desestruturação segura
+      const { id_usuario, ...moradorData } = createMoradorDto;
+
+      return await this.prisma.morador.create({
+        data: {
+          ...moradorData,
+          data_cadastro: dataCadastro,
+          usuario: {
+            connect: {
+              id_usuario: id_usuario,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    // Remove id_usuario from the data to avoid conflict with the relation
-    const { id_usuario, ...moradorData } = createMoradorDto;
-
-    return this.prisma.morador.create({
-      data: {
-        ...moradorData,
-        data_cadastro: dataCadastro, // Usar o objeto Date
-        usuario: { connect: { id_usuario: createMoradorDto.id_usuario } }, // Conecta ao usuário existente
-      },
-    });
   }
 
   async findAll() {

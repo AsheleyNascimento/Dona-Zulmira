@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsString,
   Length,
+  Matches,
 } from 'class-validator';
 
 export class CreateMoradorDto {
@@ -30,6 +31,7 @@ export class CreateMoradorDto {
   @IsNotEmpty({ message: 'O CPF é obrigatório.' })
   @IsString({ message: 'O CPF deve ser uma string.' })
   @Length(11, 11, { message: 'O CPF deve ter exatamente 11 caracteres.' })
+  @Matches(/^\d{11}$/, { message: 'O CPF deve conter apenas números.' })
   cpf: string;
 
   @IsNotEmpty({ message: 'O RG é obrigatório.' })

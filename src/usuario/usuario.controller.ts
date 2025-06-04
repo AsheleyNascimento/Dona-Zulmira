@@ -16,17 +16,15 @@ import { ParseIntIdPipe } from '../app/common/pipes/parse-int-id.pipe';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
 @Controller('usuario')
-@UseGuards(RolesGuard)
+//@UseGuards(RolesGuard)
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
   @Post()
-  async create(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-    @Req() req: { user: { funcao: string } },
-  ) {
-    const userRole = req.user.funcao; // Deve vir do token JWT
-    return this.usuarioService.create(createUsuarioDto, userRole);
+  async create(@Body() createUsuarioDto: CreateUsuarioDto) {
+    console.log(createUsuarioDto);
+    //const userRole = req.user.funcao; // Deve vir do token JWT
+    return this.usuarioService.create(createUsuarioDto);
   }
 
   @Get()

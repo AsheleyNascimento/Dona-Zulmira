@@ -14,14 +14,13 @@ import { CreateMoradorDto } from './dto/create-morador.dto';
 import { UpdateMoradorDto } from './dto/update-morador.dto';
 import { AuthGuard } from '@nestjs/passport'; // Para proteger as rotas
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'; // Opcional: para documentação com Swagger
-import { PrismaService } from '../prisma/prisma.service';
 import { ParseIntIdPipe } from '../app/common/pipes/parse-int-id.pipe';
 import { MoradorService } from './morador.service';
 
 @ApiTags('morador') // Opcional: para documentação com Swagger
 @ApiBearerAuth() // Opcional: indica que a rota requer token JWT
-@Controller('moradores')
-@UseGuards(AuthGuard('jwt')) // Protege todas as rotas deste controlador com JWT
+@Controller('morador')
+//@UseGuards(AuthGuard('jwt')) // Protege todas as rotas deste controlador com JWT
 export class MoradorController {
   constructor(private readonly moradorService: MoradorService) {}
 
