@@ -11,14 +11,22 @@ import {
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { RolesGuard } from '../app/common/guards/roles.guard';
 import { ParseIntIdPipe } from '../app/common/pipes/parse-int-id.pipe';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { AuthTokenGuard } from '../app/common/guards/auth-token.guard';
+import { REQUEST_TOKEN_PAYLOAD_KEY } from '../auth/auth.constants';
 
 @Controller('usuario')
-//@UseGuards(RolesGuard)
+@UseGuards(AuthTokenGuard)
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
+
+  @Get('me')
+  getProfile(@Req() req: Request) {
+    const user = req[REQUEST_TOKEN_PAYLOAD_KEY];
+    return user.pessoa; // Dados da pessoa já populados no guard
+  }
 
   @Post()
   async create(@Body() createUsuarioDto: CreateUsuarioDto) {
