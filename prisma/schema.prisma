@@ -8,7 +8,8 @@ datasource db {
 }
 
 model Usuario {
-  id_usuario   Int       @id @default(autoincrement())
+  id_usuario    Int       @id @default(autoincrement())
+  nome_usuario  String    @unique
   nome_completo String
   senha_hash    String
   email         String    @unique

@@ -22,10 +22,10 @@ export class AuthService {
       },
       select: {
         id_usuario: true,
+        nome_usuario: true,
         email: true,
         senha_hash: true, // <-- necessário
         funcao: true,
-        //nome_usuario: true,
         situacao: true, // <-- necessário para verificar se o usuário está ativo
       },
     });
@@ -33,16 +33,12 @@ export class AuthService {
     if (!usuario) {
       throw new UnauthorizedException('Pessoa não autorizada!');
     }
-
-    if (!usuario) {
-      throw new UnauthorizedException('Usuário não autorizado!');
-    }
     if (usuario.situacao !== true) {
       throw new UnauthorizedException('Usuário não autorizado!');
     }
 
     const passwordIsValid = await this.hashingService.comparePassword(
-      loginDto.senha_hash,
+      loginDto.senha,
       usuario.senha_hash,
     );
 
@@ -55,15 +51,26 @@ export class AuthService {
     }
     return this.createTokens({
       id_usuario: usuario.id_usuario,
+      nome_usuario: usuario.nome_usuario, // Incluindo o nome do usuário no payload
+      funcao: usuario.funcao, // Incluindo a função do usuário no payload
       email: usuario.email,
     });
   }
 
-  private async createTokens(usuario: { id_usuario: number; email: string }) {
+  private async createTokens(usuario: {
+    id_usuario: number;
+    nome_usuario: string;
+    funcao: string;
+    email: string;
+  }) {
     const accessTokenPromise = this.signJwtAsync(
       usuario.id_usuario,
       this.jwtConfiguration.jwtTtl,
-      { email: usuario.email },
+      {
+        nome: usuario.nome_usuario, // Incluindo o nome do usuário no payload
+        email: usuario.email,
+        funcao: usuario.funcao, // Incluindo a função do usuário no payload
+      },
     );
 
     const refreshTokenPromise = this.signJwtAsync(
@@ -107,6 +114,13 @@ export class AuthService {
         where: {
           id_usuario: sub,
         },
+        select: {
+          id_usuario: true,
+          nome_usuario: true,
+          email: true,
+          funcao: true,
+          situacao: true, // Verifica se o usuário está ativo
+        },
       });
 
       if (!usuario || usuario.situacao !== true) {
@@ -118,6 +132,8 @@ export class AuthService {
       }
       return this.createTokens({
         id_usuario: usuario.id_usuario,
+        nome_usuario: usuario.nome_usuario,
+        funcao: usuario.funcao,
         email: usuario.email,
       });
     } catch (error) {
